@@ -69,7 +69,8 @@ def count_solutions(grid: list[list[int|None]], pointer:int = 0) -> int:
         return solutions
     elif pointer < 9*9-1:
         return count_solutions(grid,pointer+1)
-    elif check_validity(grid):
+    else:
+        assert check_validity(grid)
         set_value(grid, pointer, None)
         return 1
 
@@ -78,13 +79,8 @@ if __name__ == "__main__":
     grid:list[list[int|None]] = [[None for _ in range(9)] for _ in range(9)]
     pointer:int = 0
     original_value: int = 0
-
     attempt(grid,0)
-            
     print_grid(grid)
-    
     grid_copy = [[cell if i < 7 else None for i, cell in enumerate(row)] for row in grid]
-    
     print_grid(grid_copy)
-    
     print(count_solutions(grid_copy))
