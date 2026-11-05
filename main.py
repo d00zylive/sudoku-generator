@@ -1,14 +1,12 @@
 import random
 
-grid:list[list[int|None]] = [[None for _ in range(9)] for _ in range(9)]
-
-def get_value(pointer:int) -> int|None:
+def get_value(grid: list[list[int|None]], pointer: int) -> int|None:
     return grid[pointer//9][pointer%9]
 
-def set_value(pointer:int, value: int|None) -> None:
+def set_value(grid: list[list[int|None]], pointer: int, value: int|None) -> None:
     grid[pointer//9][pointer%9] = value
 
-def check_validity() -> bool:
+def check_validity(grid: list[list[int|None]]) -> bool:
     for x in range(9):
         for y in range(9):
             cell = grid[x][y]
@@ -17,43 +15,45 @@ def check_validity() -> bool:
                     return False
     return True
 
-def print_grid() -> None:
+def print_grid(grid: list[list[int|None]]) -> None:
     for i, row in enumerate(grid):
         for j in range(3):
             print(*[str(cell) for cell in row[j*3:j*3+3]],sep=" ",end="  ")
         print()
         if i%3 == 2: print()
 
-def attempt(pointer:int) -> bool:
+def attempt(grid:list[list[int|None]], pointer: int) -> bool:
     original_value: int = 0
     blacklist: set[int] = set()
     while True:
-        cell = get_value(pointer)
+        cell = get_value(grid,pointer)
         if cell is None:
             original_value = random.randint(1,9)
-            set_value(pointer,original_value)
-        elif not check_validity():
+            set_value(grid,pointer,original_value)
+        elif not check_validity(grid):
             if (cell%9)+1 in blacklist and (cell%9)+1 != original_value:
                 cell = (cell%9)+1
             if (cell%9)+1 != original_value:
-                set_value(pointer,(cell%9)+1)
+                set_value(grid,pointer,(cell%9)+1)
             else:
-                set_value(pointer,None)
+                set_value(grid,pointer,None)
                 return False
         else:
             if pointer < 9*9-1:
-                if attempt(pointer+1):
+                if attempt(grid,pointer+1):
                     return True
                 else:
                     blacklist.add(cell)
-                    set_value(pointer,(cell%9)+1)
+                    set_value(grid,pointer,(cell%9)+1)
             else:
                 return True
             
 
-pointer:int = 0
-original_value: int = 0
+if __name__ == "__main__":
+    grid:list[list[int|None]] = [[None for _ in range(9)] for _ in range(9)]
+    pointer:int = 0
+    original_value: int = 0
 
-attempt(0)
-        
-print_grid()
+    attempt(grid,0)
+            
+    print_grid(grid)
