@@ -18,7 +18,7 @@ def check_validity(grid: list[list[int|None]]) -> bool:
 def print_grid(grid: list[list[int|None]]) -> None:
     for i, row in enumerate(grid):
         for j in range(3):
-            print(*[str(cell) if isinstance(cell,int) else "?" for cell in row[j*3:j*3+3]],sep=" ",end="  ")
+            print(*[str(cell) if isinstance(cell,int) else "?" for cell in row[j*3:j*3+3]],sep=" ",end=("  " if j != 2 else ""))
         print()
         if i%3 == 2: print()
 
@@ -39,7 +39,7 @@ def attempt(grid:list[list[int|None]], pointer: int) -> bool:
                 set_value(grid,pointer,None)
                 return False
         else:
-            if pointer < 9*9-1:
+            if pointer < 80:
                 if attempt(grid,pointer+1):
                     return True
                 elif len(unchecked) > (1 if cell in unchecked else 0):
@@ -60,14 +60,14 @@ def count_solutions(grid: list[list[int|None]], pointer:int = 0) -> int:
             cell += 1
             set_value(grid,pointer,cell)
             if check_validity(grid):
-                if pointer < 9*9-1:
+                if pointer < 80:
                     solutions += count_solutions(grid,pointer+1)
                     pass
                 else:
                     solutions += 1
         set_value(grid, pointer, None)
         return solutions
-    elif pointer < 9*9-1:
+    elif pointer < 80:
         return count_solutions(grid,pointer+1)
     else:
         assert check_validity(grid)
@@ -80,7 +80,21 @@ if __name__ == "__main__":
     pointer:int = 0
     original_value: int = 0
     attempt(grid,0)
-    print_grid(grid)
-    grid_copy = [[cell if i < 7 else None for i, cell in enumerate(row)] for row in grid]
+    # print_grid(grid)
+    grid_copy = [[cell for cell in row] for row in grid]
     print_grid(grid_copy)
-    print(count_solutions(grid_copy))
+    unemptiable:set[int] = set()
+    for _ in range(81-30):
+        unchecked:list[int] = [x for x in range(81) if x not in unemptiable]
+        while len(unchecked) > 0:
+            pointer = random.choice(unchecked)
+            unchecked.remove(pointer)
+            cell = get_value(grid_copy,pointer)
+            if cell is not None:
+                set_value(grid_copy,pointer,None)
+                unemptiable.add(pointer)
+                if count_solutions(grid_copy) == 1:
+                    break
+                else:
+                    set_value(grid_copy,pointer,cell)
+    print_grid(grid_copy)
