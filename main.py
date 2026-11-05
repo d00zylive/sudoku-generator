@@ -23,18 +23,18 @@ def print_grid(grid: list[list[int|None]]) -> None:
         if i%3 == 2: print()
 
 def attempt(grid:list[list[int|None]], pointer: int) -> bool:
-    original_value: int = 0
-    blacklist: set[int] = set()
+    unchecked: list[int] = [1,2,3,4,5,6,7,8,9]
     while True:
         cell = get_value(grid,pointer)
         if cell is None:
-            original_value = random.randint(1,9)
-            set_value(grid,pointer,original_value)
+            value = random.choice(unchecked)
+            unchecked.remove(value)
+            set_value(grid,pointer,value)
         elif not check_validity(grid):
-            if (cell%9)+1 in blacklist and (cell%9)+1 != original_value:
-                cell = (cell%9)+1
-            if (cell%9)+1 != original_value:
-                set_value(grid,pointer,(cell%9)+1)
+            if len(unchecked) != 0:
+                value = random.choice(unchecked)
+                unchecked.remove(value)
+                set_value(grid,pointer,value)
             else:
                 set_value(grid,pointer,None)
                 return False
@@ -42,9 +42,12 @@ def attempt(grid:list[list[int|None]], pointer: int) -> bool:
             if pointer < 9*9-1:
                 if attempt(grid,pointer+1):
                     return True
+                elif len(unchecked) > (1 if cell in unchecked else 0):
+                    if cell in unchecked:
+                        unchecked.remove(cell)
+                    set_value(grid,pointer,random.choice(unchecked))
                 else:
-                    blacklist.add(cell)
-                    set_value(grid,pointer,(cell%9)+1)
+                    return False
             else:
                 return True
             
