@@ -18,7 +18,7 @@ def check_validity(grid: list[list[int|None]]) -> bool:
 def print_grid(grid: list[list[int|None]]) -> None:
     for i, row in enumerate(grid):
         for j in range(3):
-            print(*[str(cell) for cell in row[j*3:j*3+3]],sep=" ",end="  ")
+            print(*[str(cell) if isinstance(cell,int) else "?" for cell in row[j*3:j*3+3]],sep=" ",end="  ")
         print()
         if i%3 == 2: print()
 
@@ -50,7 +50,29 @@ def attempt(grid:list[list[int|None]], pointer: int) -> bool:
                     return False
             else:
                 return True
-            
+    
+def count_solutions(grid: list[list[int|None]], pointer:int = 0) -> int:
+    cell = get_value(grid,pointer)
+    if cell is None:
+        solutions: int = 0
+        cell = 0
+        while cell < 9:
+            cell += 1
+            set_value(grid,pointer,cell)
+            if check_validity(grid):
+                if pointer < 9*9-1:
+                    solutions += count_solutions(grid,pointer+1)
+                    pass
+                else:
+                    solutions += 1
+        set_value(grid, pointer, None)
+        return solutions
+    elif pointer < 9*9-1:
+        return count_solutions(grid,pointer+1)
+    elif check_validity(grid):
+        set_value(grid, pointer, None)
+        return 1
+
 
 if __name__ == "__main__":
     grid:list[list[int|None]] = [[None for _ in range(9)] for _ in range(9)]
@@ -60,3 +82,9 @@ if __name__ == "__main__":
     attempt(grid,0)
             
     print_grid(grid)
+    
+    grid_copy = [[cell if i < 7 else None for i, cell in enumerate(row)] for row in grid]
+    
+    print_grid(grid_copy)
+    
+    print(count_solutions(grid_copy))
